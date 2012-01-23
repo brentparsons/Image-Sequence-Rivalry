@@ -59,7 +59,7 @@ nBlocks = 1; % do all the nReps in every block
 imageDuration = 0.85; % seconds -- multiple of refresh, please!
 trialDuration = 0.85; 
 nTargets = (nImageBs*3)*3; % should be multiple of nImageBs*3 (which gives one target per sequence position per imageB)
-targetImage = 901; % number of target image in types file
+targetImage = 9001; % number of target image in types file
 
 % note: prop bseqs with target = nTargets(outside parens) / nRepsB(outside
 % parens)
@@ -182,7 +182,7 @@ for block = 1:nBlocks
     % make image sequence for this block
     imageSequence = rd_makeTrainingImageSequence2(nImageBs, nRepsB, repsPerSubstack);
     
-    imageSequence = addTargetsToImageSequence(imageSequence, nImageBs, ...
+    imageSequenceT = addTargetsToImageSequence(imageSequence, nImageBs, ...
         nRepsB, nTargets, targetImage);
 
     % get category labels for this image sequence
@@ -221,9 +221,9 @@ for block = 1:nBlocks
     
     % present image sequence for this block
     [responseArray(block).keyTimes responseArray(block).keyEvents responseArray(block).responseAcc] = ...
-        rd_presentRivalryTrainingImageSequence(window, imagetexs, ...
+        rd_presentRivalryFilmstripImageSequence(window, imagetexs, ...
         imageDuration, trialDuration, imageSequenceCategories, ...
-        categoryNames, categoryKeyNumbers, devNums, errorsound);
+        responseNames, responseKeyNumbers, devNums, correctsound, errorsound);
     
     % store image sequence and categories
     imageSequenceByBlock(:,block) = imageSequence;

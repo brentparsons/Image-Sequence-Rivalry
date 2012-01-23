@@ -1,3 +1,7 @@
 Filmstrip Rivalry To-Do
 
 Add target image to TYPES
+Need to specify left and right image sequences
+- targets also need to be counterbalanced across eyes
+Make 'correctsound'
+Add feedback for missed targets?
