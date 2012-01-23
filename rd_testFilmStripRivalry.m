@@ -8,15 +8,7 @@ function rd_testFilmStripRivalry
 % Modified from rd_trainImageSequenceRivalry.m
 %
 % Rachel Denison
-% March 2011
-
-topup_run = 0; % 1 for topup run called from testPredictiveRivalry, 0 for not
-
-% Start by removing anything left over in the memory:
-if ~topup_run
-    clear all;
-    close all;
-end
+% January 2012
 
 global pixelsPerDegree;
 global spaceBetweenMultiplier;
@@ -26,28 +18,28 @@ global spaceBetweenMultiplier;
 % -------------------------------------------------------------------------
 % specify where the resulting datafile will be stored
 % dataDirectoryPath = '/Rachel/Image_Sequence_Rivalry/data/'; % testing room
-dataDirectoryPath = '/private/Network/Servers/platanos.ucbso/Volumes/Plata1/UserHomes/rachel/Projects/Image_Sequence_Rivalry2/data/'; % desk
+dataDirectoryPath = '/Volumes/rachel-1/Projects/Filmstrip_Rivalry/data/'; % laptop
 
 % specify the path for the displayParams file
 % targetDisplayPath ='/Rachel/Displays/'; % testing room
-targetDisplayPath = '/private/Network/Servers/platanos.ucbso/Volumes/Plata1/UserHomes/rachel/Projects/Displays/'; % desk
+targetDisplayPath = '/Volumes/rachel-1/Projects/Displays/'; % laptop
 
 % further specify the path for the displayParams file
 targetDisplayName = 'Minor_582J_rivalry'; 
 
 % specify where the images are stored
 % imageDirectoryPath = '/Rachel/Image_Sequence_Rivalry/images/Kendrick_images/'; % testing room
-imageDirectoryPath = '/private/Network/Servers/platanos.ucbso/Volumes/Plata1/UserHomes/rachel/Projects/Image_Sequence_Rivalry1/images/Kendrick_images/'; % desk
+imageDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry1/images/Kendrick_images/'; % laptop
 
 % specify where the image file names lists organized by type are stored
 % typeListDirectoryPath = '/Rachel/Image_Sequence_Rivalry/image_type_lists/'; % testing room
-typeListDirectoryPath = '/private/Network/Servers/platanos.ucbso/Volumes/Plata1/UserHomes/rachel/Projects/Image_Sequence_Rivalry2/image_type_lists/'; % desk
+typeListDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry2/image_type_lists/'; % laptop
 
 typeFile = 'TYPES_20110325_6Cat.mat'; % 4 hand-picked image sets
 
 % set keypad device numbers
 % devNums = findKeyboardDevNums; % testing room
-devNums = findKeyboardDevNums_rddesktop; % desk (desktop)
+devNums = findKeyboardDevNums_externalKeyboard; % laptop 
 if isempty(devNums.Keypad)
     error('Could not find Keypad! Please check findKeyboardDevNums.')
 end
