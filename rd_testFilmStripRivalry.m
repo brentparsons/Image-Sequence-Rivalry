@@ -74,7 +74,11 @@ soundvector = 0.25 * sin(2*pi*v/30); %a nice beep at 2kH samp freq
 
 % Response error sound
 v = 1:1000;
-errorsound = 0.25 * sin(10*pi*v/30); 
+errorsound = 0.25 * sin(5*pi*v/30); 
+
+% Response correct sound
+v = 1:1000;
+correctsound = 0.25 * sin(10*pi*v/30); 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Display setup
