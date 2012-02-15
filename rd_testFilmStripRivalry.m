@@ -205,9 +205,9 @@ for block = 1:nBlocks
         imageFilePathLeft = [imageDirectoryPath imageFileName];
         imageFilePathRight = imageFilePathLeft; % same image on both sides
         
-        [imageTexture imagetex] = rd_makeRivalryImageTextureRGB(window, imageFilePathLeft, imageFilePathRight);
+        imagetex = rd_makeRivalryImageTextureRGB(window, imageFilePathLeft, imageFilePathRight);
         
-        imageTextures{trial} = imageTexture; % a stack of image matrices (eg. imagesc(imageTexture))
+%         imageTextures{trial} = imageTexture; % a stack of image matrices (eg. imagesc(imageTexture))
         imagetexs(trial,1) = imagetex; % a list of texture pointers to said image matrices
         
     end
