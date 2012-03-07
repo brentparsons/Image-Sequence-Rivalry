@@ -18,28 +18,28 @@ global spaceBetweenMultiplier;
 % -------------------------------------------------------------------------
 % specify where the resulting datafile will be stored
 % dataDirectoryPath = '/Rachel/Image_Sequence_Rivalry/data/'; % testing room
-dataDirectoryPath = '/Volumes/rachel-1/Projects/F_Rivalry2/data/'; % desk
+dataDirectoryPath = '/Volumes/rachel-1/Projects/Filmstrip_Rivalry/data/'; % laptop
 
 % specify the path for the displayParams file
 % targetDisplayPath ='/Rachel/Displays/'; % testing room
-targetDisplayPath = '/Volumes/rachel-1/Projects/Displays/'; % desk
+targetDisplayPath = '/Volumes/rachel-1/Projects/Displays/'; % laptop
 
 % further specify the path for the displayParams file
 targetDisplayName = 'Minor_582J_rivalry'; 
 
 % specify where the images are stored
 % imageDirectoryPath = '/Rachel/Image_Sequence_Rivalry/images/Kendrick_images/'; % testing room
-imageDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry1/images/Kendrick_images/'; % desk
+imageDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry1/images/Kendrick_images/'; % laptop
 
 % specify where the image file names lists organized by type are stored
 % typeListDirectoryPath = '/Rachel/Image_Sequence_Rivalry/image_type_lists/'; % testing room
-typeListDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry2/image_type_lists/'; % desk
+typeListDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry2/image_type_lists/'; % laptop
 
 typeFile = 'TYPES_20110325_6Cat.mat'; % 4 hand-picked image sets
 
 % set keypad device numbers
 % devNums = findKeyboardDevNums; % testing room
-devNums = findKeyboardDevNums_rddesktop; % desk (desktop)
+devNums = findKeyboardDevNums_externalKeyboard; % laptop 
 if isempty(devNums.Keypad)
     error('Could not find Keypad! Please check findKeyboardDevNums.')
 end
@@ -57,9 +57,9 @@ nRepsB = (3)*6; % determines the number of trials % 18 for actual expt (should b
 repsPerSubstack = 6; % should be <= nRepsB
 nBlocks = 1; % do all the nReps in every block
 imageDuration = 0.85; % seconds -- multiple of refresh, please!
-trialDuration = 0.85; 
+trialDuration = 0.85;
 nTargets = (nImageBs*3)*3; % should be multiple of nImageBs*3 (which gives one target per sequence position per imageB)
-targetImage = 901; % number of target image in types file
+targetImage = 9001; % number of target image in types file
 
 % note: prop bseqs with target = nTargets(outside parens) / nRepsB(outside
 % parens)
@@ -74,7 +74,11 @@ soundvector = 0.25 * sin(2*pi*v/30); %a nice beep at 2kH samp freq
 
 % Response error sound
 v = 1:1000;
-errorsound = 0.25 * sin(10*pi*v/30); 
+errorsound = 0.25 * sin(1*pi*v/30); 
+
+% Response correct sound
+v = 1:1000;
+correctsound = 0.25 * sin(10*pi*v/30); 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Display setup
@@ -182,28 +186,46 @@ for block = 1:nBlocks
     % make image sequence for this block
     imageSequence = rd_makeTrainingImageSequence2(nImageBs, nRepsB, repsPerSubstack);
     
-    imageSequence = addTargetsToImageSequence(imageSequence, nImageBs, ...
+    imageSequenceT = addTargetsToImageSequence(imageSequence, nImageBs, ...
+        nRepsB, nTargets, targetImage);
+    %
+    imageSequenceL = addTargetsToImageSequenceLeft(imageSequence, nImageBs, ...
+        nRepsB, nTargets, targetImage);
+     imageSequenceR = addTargetsToImageSequenceRight(imageSequence, nImageBs, ...
         nRepsB, nTargets, targetImage);
 
     % get category labels for this image sequence
-    imageSequenceCategories = getCategoryLabels(imageSequence, TYPES);
+    imageSequenceCategories = getCategoryLabels(imageSequenceT, TYPES);
+    
+    % get triplet, target position, and eye
+    imageSequenceTargets = getTargets(imageSequenceT); %0,1
+    imageSequenceTriplets = getTriplets(imageSequence); % 1,2,3,4
+    imageSequenceTargetPosition =  getTargetPosition(imageSequenceT)% 1,2,3
+    imageSequenceTargetEye = getTargetEye(imageSequenceL,imageSequenceR)% 1 or 2
+    
 
     clear imageTextures imagetexs
     
     % build image texture sequence
     for trial = 1:length(imageSequence)
         
-        image = imageSequence(trial);
-        imageType = imageTypeNames{(image > lowerbounds) & (image < upperbounds)};
-        imageNumber = rem(image, 100);
-        imageFileName = TYPES.(imageType).imageFiles(imageNumber).name;
+        imageR = imageSequenceR(trial);
+        imageTypeR = imageTypeNames{(imageR > lowerbounds) & (imageR < upperbounds)};
+        imageNumberR = rem(imageR, 100);
+        imageFileNameR = TYPES.(imageTypeR).imageFiles(imageNumberR).name;
         
-        imageFilePathLeft = [imageDirectoryPath imageFileName];
-        imageFilePathRight = imageFilePathLeft; % same image on both sides
+        imageL = imageSequenceL(trial);
+        imageTypeL = imageTypeNames{(imageL > lowerbounds) & (imageL < upperbounds)};
+        imageNumberL = rem(imageL, 100);
+        imageFileNameL = TYPES.(imageTypeL).imageFiles(imageNumberL).name;
         
-        [imageTexture imagetex] = rd_makeRivalryImageTextureRGB(window, imageFilePathLeft, imageFilePathRight);
         
-        imageTextures{trial} = imageTexture; % a stack of image matrices (eg. imagesc(imageTexture))
+        imageFilePathLeft = [imageDirectoryPath imageFileNameR];
+        imageFilePathRight = [imageDirectoryPath imageFileNameL];
+        
+        imagetex = rd_makeRivalryImageTextureRGB(window, imageFilePathLeft, imageFilePathRight);
+        
+%         imageTextures{trial} = imageTexture; % a stack of image matrices (eg. imagesc(imageTexture))
         imagetexs(trial,1) = imagetex; % a list of texture pointers to said image matrices
         
     end
@@ -220,29 +242,43 @@ for block = 1:nBlocks
     datestr(now)
     
     % present image sequence for this block
-    [responseArray(block).keyTimes responseArray(block).keyEvents responseArray(block).responseAcc] = ...
-        rd_presentRivalryTrainingImageSequence(window, imagetexs, ...
+    [targetArray(block).keyTimes targetArray(block).keyEvents targetArray(block).responseAcc ...
+        targetArray(block).targetMissed] = ...
+        rd_presentRivalryFilmstripTargetImageSequence(window, imagetexs, ...
         imageDuration, trialDuration, imageSequenceCategories, ...
-        categoryNames, categoryKeyNumbers, devNums, errorsound);
+        responseNames, responseKeyNumbers, devNums, correctsound, errorsound, imageSequenceTargets);
     
     % store image sequence and categories
-    imageSequenceByBlock(:,block) = imageSequence;
+    imageSequenceByBlock(:,block) = imageSequenceT;
+    imageSequenceByBlockR(:,block) = imageSequenceR;
+    imageSequenceByBlockL(:,block) = imageSequenceL;
     imageSequenceCategoriesByBlock(:,block) = imageSequenceCategories;
+    imageSequenceTargetsByBlock(:,block) = imageSequenceTargets;
+    imageSequenceTripletsByBlock(:,block) = imageSequenceTriplets;
+    imageSequenceTargetPositionByBlock(:,block) = imageSequenceTargetPosition;
+    imageSequenceTargetEyeByBlock(:,block) = imageSequenceTargetEye;
     
     stim.sequence = imageSequenceByBlock;
+    stim.sequenceR = imageSequenceByBlock;
+    stim.sequenceL = imageSequenceByBlock;
     stim.categories = imageSequenceCategoriesByBlock;
+    stim.triplets = imageSequenceTripletsByBlock;
+    stim.targetPosition = imageSequenceTargetPositionByBlock;
+    stim.targetEye =imageSequenceTargetEyeByBlock;
     
     % save data
-    save(dataFileName, 'subjectID', 'timeStamp', 'responseArray', 'stim', 'expt');
+    save(dataFileName, 'subjectID', 'timeStamp', 'targetArray', 'stim', 'expt');
 
     % show response accuracy and rt
-    acc = responseArray(block).responseAcc;
+    hit = responseArray(block).responseAcc;
+    hits = sum(hit);
+    acc = hits/nTargets;
+    
     rt = responseArray(block).keyTimes;
-    mean_acc = mean(acc);
-    mean_rt_correct = mean(rt(acc==1)); 
+    mean_rt_correct = mean(rt(hit==1)); 
     
     DrawFormattedText(window, ...
-        sprintf('Accuracy: %d%%\n\nRT: %d ms', round(mean_acc*100), round(mean_rt_correct*1000)),...
+        sprintf('Target Accuracy: %d%%\n\nRT: %d ms', round(acc*100), round(mean_rt_correct*1000)),...
         'center', 'center', [255 255 255]);
     Screen('Flip', window);
     

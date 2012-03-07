@@ -29,7 +29,7 @@ for trial = 1:length(imageSequenceL)
   % specifies target eye (L=1,R=2)
     if targetPresentL == 0 && targetPresentR == 0;
         targetEye = NaN;
-    elseif TargetPresentL == 1;
+    elseif targetPresentL == 1;
         targetEye = 1;
     else
     targetEye = 2;   

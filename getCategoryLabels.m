@@ -9,7 +9,7 @@ upperbounds = lowerbounds + 101;
 
 for trial = 1:length(imageSequenceT)
 
-    imageNumber = imageSequenceTarget(trial);
+    imageNumber = imageSequenceT(trial);
     imageType = imageTypeNames{(imageNumber > lowerbounds) & (imageNumber < upperbounds)};
     image = rem(imageNumber, 100);
 

@@ -5,7 +5,7 @@ function imageSequenceTriplets = getTriplets(imageSequence)
 
 for trial = 1:length(imageSequence)
 
-    imageNumber = imageSequenceTarget(trial);
+    imageNumber = imageSequence(trial);
     image = rem(imageNumber, 100);
 
     imageSequenceTriplets(trial,1) = image;
