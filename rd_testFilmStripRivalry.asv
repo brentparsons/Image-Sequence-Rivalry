@@ -268,16 +268,13 @@ for block = 1:nBlocks
     % save data
     save(dataFileName, 'subjectID', 'timeStamp', 'targetArray', 'stim', 'expt');
 
-    % show response accuracy and rt
+    % show res accuracy 
     hit = responseArray(block).responseAcc;
     hits = sum(hit);
     acc = hits/nTargets;
     
-    rt = responseArray(block).keyTimes;
-    mean_rt_correct = mean(rt(hit==1)); 
-    
     DrawFormattedText(window, ...
-        sprintf('Target Accuracy: %d%%\n\nRT: %d ms', round(acc*100), round(mean_rt_correct*1000)),...
+        sprintf('Target Accuracy: %d%%\n\nRT: %d ms', round(mean_acc*100), round(mean_rt_correct*1000)),...
         'center', 'center', [255 255 255]);
     Screen('Flip', window);
     
