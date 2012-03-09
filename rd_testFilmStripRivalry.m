@@ -58,8 +58,11 @@ repsPerSubstack = 6; % should be <= nRepsB
 nBlocks = 1; % do all the nReps in every block
 imageDuration = 0.85; % seconds -- multiple of refresh, please!
 trialDuration = 0.85;
+responseDuration = 1.25;
 nTargets = (nImageBs*3)*3; % should be multiple of nImageBs*3 (which gives one target per sequence position per imageB)
 targetImage = 9001; % number of target image in types file
+targetOnset = NaN;
+trialTarget = NaN;
 
 % note: prop bseqs with target = nTargets(outside parens) / nRepsB(outside
 % parens)
@@ -188,10 +191,22 @@ for block = 1:nBlocks
     
     imageSequenceT = addTargetsToImageSequence(imageSequence, nImageBs, ...
         nRepsB, nTargets, targetImage);
-    imageSequenceL = addTargetsToImageSequenceLeft(imageSequence, nImageBs, ...
-        nRepsB, nTargets, targetImage);
-     imageSequenceR = addTargetsToImageSequenceRight(imageSequence, nImageBs, ...
-        nRepsB, nTargets, targetImage);
+    
+    checkRepeat = 1;
+    countRepeatChecks = 0;
+    while checkRepeat
+        countRepeatChecks = countRepeatChecks + 1;
+        tidx = find(imageSequenceT==targetImage);
+        checkRepeat = any(diff(tidx)==1);
+        if checkRepeat
+            imageSequenceT = addTargetsToImageSequence(imageSequence, nImageBs, nRepsB, nTargets, targetImage);
+        end
+        if countRepeatChecks > 1000
+            error('Couldnt generate non-repeat sequence')
+        end
+    end
+    
+    [imageSequenceL imageSequenceR] = addTargetsByEye(imageSequence, imageSequenceT, targetImage);
 
     % get category labels for this image sequence
     imageSequenceCategories = getCategoryLabels(imageSequenceT, TYPES);
@@ -199,8 +214,8 @@ for block = 1:nBlocks
     % get triplet, target position, and eye
     imageSequenceTargets = getTargets(imageSequenceT); %0,1
     imageSequenceTriplets = getTriplets(imageSequence); % 1,2,3,4
-    imageSequenceTargetPosition =  getTargetPosition(imageSequenceT)% 1,2,3
-    imageSequenceTargetEye = getTargetEye(imageSequenceL,imageSequenceR)% 1 or 2
+    imageSequenceTargetPosition =  getTargetPosition(imageSequenceT);% 1,2,3
+    imageSequenceTargetEye = getTargetEye(imageSequenceL,imageSequenceR);% 1,2
     
 
     clear imageTextures imagetexs
@@ -222,7 +237,7 @@ for block = 1:nBlocks
         imageFilePathLeft = [imageDirectoryPath imageFileNameR];
         imageFilePathRight = [imageDirectoryPath imageFileNameL];
         
-        imagetex = rd_makeRivalryImageTextureRGB(window, imageFilePathLeft, imageFilePathRight);
+        imagetex = rd_makeRivalryImageTexture(window, imageFilePathLeft, imageFilePathRight);
         
 %         imageTextures{trial} = imageTexture; % a stack of image matrices (eg. imagesc(imageTexture))
         imagetexs(trial,1) = imagetex; % a list of texture pointers to said image matrices
@@ -242,10 +257,11 @@ for block = 1:nBlocks
     
     % present image sequence for this block
     [targetArray(block).keyTimes targetArray(block).keyEvents targetArray(block).responseAcc ...
-        targetArray(block).targetMissed] = ...
+        targetArray(block).targetMissed targetOnset trialTarget] = ...
         rd_presentRivalryFilmstripTargetImageSequence(window, imagetexs, ...
         imageDuration, trialDuration, imageSequenceCategories, ...
-        responseNames, responseKeyNumbers, devNums, correctsound, errorsound, imageSequenceTargets);
+        responseNames, responseKeyNumbers, devNums, correctsound, errorsound,...
+        imageSequenceTargets, targetOnset, trialTarget, responseDuration);
     
     % store image sequence and categories
     imageSequenceByBlock(:,block) = imageSequenceT;

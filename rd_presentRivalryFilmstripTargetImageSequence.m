@@ -1,5 +1,5 @@
-function [responseTimes responseKeyboardEvents responseAcc responseMissed] = ...
-    rd_presentRivalryFilmstripTargetImageSequence(window, texs, imageDuration, trialDuration, imageSequenceCategories, categoryNames, categoryKeyNumbers, devNums, correctsound, errorsound, imageSequenceTargets)
+function [responseTimes responseKeyboardEvents responseAcc responseMissed targetOnset targetTrial] = ...
+    rd_presentRivalryFilmstripTargetImageSequence(window, texs, imageDuration, trialDuration, imageSequenceCategories, categoryNames, categoryKeyNumbers, devNums, correctsound, errorsound, imageSequenceTargets, targetOnset, responseDuration, targetTrial)
 
 % Given a list of image texture pointers and image durations, present one
 % image after the other and collect responses throughout. Separate images
@@ -55,26 +55,37 @@ for trial = 1:nTrials
     keyAlreadyPressed = 0; % take first key press only
     
     %Check if previous trial and current trial are targets
-    if trial == 1;
-        previousTrialTarget = 0;  
-        currentTrialTarget = imageSequenceTargets(trial);
-    elseif imageSequenceTargets(trial-1)&& ~imageSequenceTargets(trial)
-        previousTrialTarget = imageSequenceTargets(trial-1);
-    else
-        currentTrialTarget = imageSequenceTargets(trial);
-        
+    if imageSequenceTargets(trial)
+        targetOnset = timeFlipImage;
+        targetTrial = trial;
+    end  
         
     while GetSecs < timeFlipImage + imageDuration - slack
         % Check subject response
         [keyIsDown, seconds, keyCode] = KbCheck(devNums.Keypad); % Check the state of the keyboard
         
+        
         if keyIsDown && ~keyAlreadyPressed && sum(keyCode)<2 % don't take multiple responses
             [responseTimes(trial) responseKeyboardEvents(trial) responseAcc(trial)] = ...
                 keyDownActions(seconds, timeFlipImage, keyCode, categoryNames, ...
-                categoryKeyNumbers, imageSequenceCategories, errorsound);
+                categoryKeyNumbers, imageSequenceCategories, errorsound, ...
+                targetOnset, responseDuration, targetTrial);
             keyAlreadyPressed = 1;
         end
+        
+        
+        if GetSecs < targetOnset + responseDuration && ~keyAlreadyPressed && responseAcc(targetTrial) == 0
+            sound(errorsound, 8000);
+            [responseMissed(targetTrial)] = 1;
+        end
+        
     end
+    
+    if targetTrial ~= trial && responseAcc(trial) == 1
+        responseAcc(targetTrial) = 1;
+        responseAcc(trial) = 0;
+    end
+    
     
     % Draw blank
     Screen('DrawTexture', window, blanktex);
@@ -86,16 +97,10 @@ for trial = 1:nTrials
 
         if keyIsDown && ~keyAlreadyPressed && sum(keyCode)<2
             [responseTimes(trial) responseKeyboardEvents(trial) responseAcc(trial,1)] = ...
-                keyDownActions(seconds, timeFlipImage, keyCode, categoryNames, ...
+                keyDownActions(seconds, timeFlipBlank, keyCode, categoryNames, ...
                 categoryKeyNumbers, imageSequenceCategories, errorsound);
             keyAlreadyPressed = 1;
         end
-    end
-    
-    % play error sound if target missed and record miss
-    if GetSecs == timeFlipImage + trialDuration - slack && currentTrialTarget && ~keyAlreadyPressed
-        sound(errorsound, 8000);
-        [responseMissed(trial)] = 1;
     end
      
 end % end trials
@@ -118,20 +123,22 @@ Screen('Close');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % keyDownActions
-function [rt response correct] = keyDownActions(seconds, timeFlipImage, keyCode, categoryNames, categoryKeyNumbers, imageSequenceCategories, errorsound);
-    rt = seconds - timeFlipImage;
+function [rt response correct] = keyDownActions(seconds, keyCode, categoryNames, categoryKeyNumbers, imageSequenceCategories, errorsound, targetOnset, responseDuration, targetTrial)
+    rt = seconds - targetOnset;
     response = find(keyCode);
 
     % feedback
     responseCategory = categoryNames{categoryKeyNumbers==response};
-    if ~isempty(responseCategory)
-        correct = strcmp(imageSequenceCategories{trial}, responseCategory);
+    if ~isempty(responseCategory) && seconds < targetOnset+responseDuration
+        correct = strcmp(imageSequenceCategories{targetTrial}, responseCategory);
         feedbackSound = correctsound;
     else
         correct = 0;
         feedbackSound = errorsound;
     end
-    sound (feedbackSound, 8000);
+    sound (feedbackSound, 8000);    
+    
+
 end % end keyDownActions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

@@ -1,4 +1,4 @@
-function imageSequenceTarget = addTargetsToImageSequence(imageSequence, nImageBs, nRepsB, nTargets, targetImage)
+function imageSequenceT = addTargetsToImageSequence(imageSequence, nImageBs, nRepsB, nTargets, targetImage)
 
 nItemsInUnitSequence = length(imageSequence)/(nImageBs*nRepsB);
 % nSetsWithTargets = nTargets/nItemsInUnitSequence;
@@ -38,9 +38,9 @@ sortedSetStackTarget = reshape(sortedSetStack3DTarget, nItemsInUnitSequence, nIm
 setStackTarget = zeros(size(sortedSetStackTarget));
 setStackTarget(idx,:) = sortedSetStackTarget; 
     
-imageSequenceTarget = reshape(setStackTarget', length(imageSequence), 1);
+imageSequenceT = reshape(setStackTarget', length(imageSequence), 1);
     
-    
+   
     
 
 

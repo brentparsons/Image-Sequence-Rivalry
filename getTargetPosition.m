@@ -11,20 +11,14 @@ for trial = 1:length(imageSequenceT)
 
     imageNumber = imageSequenceT(trial);
     imageType = imageTypeNames{(imageNumber > lowerbounds) & (imageNumber < upperbounds)};
-    targetPresent = 0;
+    targetPosition = NaN;
     
     if imageType == 't'
-        targetPresent = 1;
-    end
-    
-    if targetPresent == 0;
-        targetPosition = NaN;
-    else
-    targetPosition = rem(imageNumber, 3)
+        targetPosition = rem(trial, 3);
     end
     
     if targetPosition == 0
-        targetPosition = 3
+        targetPosition = 3;
     end
     
     imageSequenceTargetPosition(trial,1) = targetPosition;
