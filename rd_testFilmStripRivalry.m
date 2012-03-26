@@ -17,23 +17,23 @@ global spaceBetweenMultiplier;
 % User-defined values, might vary by testing room. Check these before running.
 % -------------------------------------------------------------------------
 % specify where the resulting datafile will be stored
-% dataDirectoryPath = '/Rachel/Image_Sequence_Rivalry/data/'; % testing room
-dataDirectoryPath = '/Volumes/rachel-1/Projects/Filmstrip_Rivalry/data/'; % laptop
+dataDirectoryPath = '/Users/michaelsilver/Brent/Rivalry/Image_Sequence_Rivalry/data/'; % testing room
+% dataDirectoryPath = '/Volumes/rachel-1/Projects/Filmstrip_Rivalry/data/'; % laptop
 
 % specify the path for the displayParams file
-% targetDisplayPath ='/Rachel/Displays/'; % testing room
-targetDisplayPath = '/Volumes/rachel-1/Projects/Displays/'; % laptop
+targetDisplayPath ='/Users/michaelsilver/Brent/Displays/'; % testing room
+% targetDisplayPath = '/Volumes/rachel-1/Projects/Displays/'; % laptop
 
 % further specify the path for the displayParams file
 targetDisplayName = 'Minor_582J_rivalry'; 
 
 % specify where the images are stored
-% imageDirectoryPath = '/Rachel/Image_Sequence_Rivalry/images/Kendrick_images/'; % testing room
-imageDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry1/images/Kendrick_images/'; % laptop
+imageDirectoryPath = '/Users/michaelsilver/Brent/Rivalry/Kendrick_images/'; % testing room
+% imageDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry1/images/Kendrick_images/'; % laptop
 
 % specify where the image file names lists organized by type are stored
-% typeListDirectoryPath = '/Rachel/Image_Sequence_Rivalry/image_type_lists/'; % testing room
-typeListDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry2/image_type_lists/'; % laptop
+typeListDirectoryPath = '/Users/michaelsilver/Brent/Rivalry/Types/'; % testing room
+% typeListDirectoryPath = '/Volumes/rachel-1/Projects/Image_Sequence_Rivalry/Image_Sequence_Rivalry2/image_type_lists/'; % laptop
 
 typeFile = 'TYPES_20110325_6Cat.mat'; % 4 hand-picked image sets
 
@@ -237,7 +237,7 @@ for block = 1:nBlocks
         imageFilePathLeft = [imageDirectoryPath imageFileNameR];
         imageFilePathRight = [imageDirectoryPath imageFileNameL];
         
-        imagetex = rd_makeRivalryImageTexture(window, imageFilePathLeft, imageFilePathRight);
+        [imageTexture imagetex] = rd_makeRivalryImageTexture(window, imageFilePathLeft, imageFilePathRight);
         
 %         imageTextures{trial} = imageTexture; % a stack of image matrices (eg. imagesc(imageTexture))
         imagetexs(trial,1) = imagetex; % a list of texture pointers to said image matrices
